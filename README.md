@@ -54,3 +54,11 @@ To deploy only the changed function code to AWS
 To remove all serverless functions and resources deployed to AWS
 
     sls remove
+
+
+## References: 
+
+- [Serverless Docs](https://serverless.com/framework/docs/)
+- [S3 Boto3 client doc](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html)
+- [Cloudformation S3](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket.html)
+- [Permissions in S3](https://docs.aws.amazon.com/AmazonS3/latest/dev/using-with-s3-actions.html)
