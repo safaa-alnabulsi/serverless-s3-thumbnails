@@ -14,7 +14,10 @@ A practical example using Python, deploy a service to generate thumbnails for im
 To create the serverless for the first time
 
     sls create -p sls-s3-thumbnails -t aws-python
+To install python plugin for the first time
 
+    sls plugin install -n serverless-python-requirements
+    
 To create AWS credentials file in ~/.aws
 
     sls config credentials --provider aws --key <access-key-id> --secret <secret> --profile <profilename>
@@ -32,7 +35,14 @@ To tail logs of a function
     sls logs -f <function-name> --tail
 
 ## Deployment
+To install python packages in [requirements.txt](requirements.txt)
 
+    npm install --save serverless-python-requirements
+
+To package all the files & installed libraries
+   
+    sls package
+   
 To deploy all serverless functions and resources to AWS
 
     sls deploy -v

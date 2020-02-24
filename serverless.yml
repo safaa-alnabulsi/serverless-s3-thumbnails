@@ -112,3 +112,9 @@ resources:
        Description: "S3 Bucket ARN"
        Value:
           Fn::GetAtt S3BucketThumbnails
+
+plugins:
+  - serverless-python-requirements
+custom:
+  pythonRequirements:
+    dockerizePip: true
