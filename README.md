@@ -1,6 +1,6 @@
-# serverless-s3-thumbnails
+# Serverless S3 Thumbnails Generator
 
-A practical example using Python, deploy a service to generate thumbnails for images that interacts with S3 and use a plugin to properly package your Python dependencies.
+A practical example using Python to deploy a service to generate thumbnails for images that interacts with S3.
 
 ## Pre-requisite:
 
