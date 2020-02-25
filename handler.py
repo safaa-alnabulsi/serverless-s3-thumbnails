@@ -5,26 +5,42 @@ from botocore.exceptions import ClientError
 from PIL import Image
 import glob, os
 
-bucket = 's3-thumbnails'
-img_file = 'results.png'
 size = 2, 2
 prefix = 'thumbnail_'
 
+def s3_generate_thumbnails(event, context):
+    bucket = event['Records'][0]['s3']['bucket']['name']
+    key = event['Records'][0]['s3']['object']['key']
 
-def hello(event, context):
-    print(event)
+    if not is_thumbnail(key, prefix):
+        new_img_name = prefix + key
+        new_img_full_path = '/tmp/'+ new_img_name
+
+        img_file = get_uploaded_image(bucket, key)
+
+        image_to_thumbnail(img_file, new_img_full_path, size)
+
+        response = upload_file(new_img_full_path, bucket, new_img_name)
+
+        return response
+
+
+def is_thumbnail(key, prefix):
+    file_name = os.path.basename(key)
+    return file_name.startswith(prefix)
+
+
+def get_uploaded_image(bucket, key):
     s3_client = boto3.client('s3')
+    response = s3_client.get_object(Bucket=bucket, Key=key)
+    file_stream = response['Body']
+    image = Image.open(file_stream)
+    return image
 
-    new_img_name = prefix + img_file
-    image_to_thumbnail(img_file, new_img_name, size)
-    response_body = upload_file('/tmp/'+ new_img_name, bucket, object_name=new_img_name)
 
-    response = {
-        "statusCode": 200,
-        "body": json.dumps(response_body)
-    }
-
-    return response
+def image_to_thumbnail(img_file, new_img_full_path, size):
+    img_file.thumbnail(size)
+    img_file.save(new_img_full_path, "PNG")
 
 
 def upload_file(file_name, bucket, object_name):
@@ -36,16 +52,3 @@ def upload_file(file_name, bucket, object_name):
         return False
 
     return True
-
-
-def image_to_thumbnail(img_file, new_img_name, size):
-    file, ext = os.path.splitext(img_file)
-    im = Image.open(img_file)
-    im.thumbnail(size)
-    im.save('/tmp/'+ new_img_name, "PNG")
-
-def get_uploaded_image():
-    pass
-
-def is_not_thumbnail():
-    pass
