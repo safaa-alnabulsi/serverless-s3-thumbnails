@@ -118,3 +118,4 @@ plugins:
 custom:
   pythonRequirements:
     dockerizePip: true
+    slim: False
