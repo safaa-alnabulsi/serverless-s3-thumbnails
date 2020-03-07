@@ -5,8 +5,12 @@ from botocore.exceptions import ClientError
 from PIL import Image
 import glob, os
 
-size = 2, 2
-prefix = 'thumbnail_'
+prefix = os.environ['PREFIX']
+topic_arn = os.environ['TOPIC_ARN']
+
+def trigger_alert(event, context):
+    notify(str(event), 'sent from destinations feature')
+
 
 def s3_generate_thumbnails(event, context):
     bucket = event['Records'][0]['s3']['bucket']['name']
@@ -18,9 +22,11 @@ def s3_generate_thumbnails(event, context):
 
         img_file = get_uploaded_image(bucket, key)
 
-        image_to_thumbnail(img_file, new_img_full_path, size)
+        image_to_thumbnail(img_file, new_img_full_path, (2,2))
 
         response = upload_file(new_img_full_path, bucket, new_img_name)
+
+        notify(str(response), 'Success! Thumbnail has been created')
 
         return response
 
@@ -39,8 +45,12 @@ def get_uploaded_image(bucket, key):
 
 
 def image_to_thumbnail(img_file, new_img_full_path, size):
-    img_file.thumbnail(size)
-    img_file.save(new_img_full_path, "PNG")
+    try:
+        img_file.thumbnail(size)
+        img_file.save(new_img_full_path, "PNG")
+    except Error as e:
+        notify(str(e), 'Failure! Thumbnail has failed to be created')
+        logging.error(e)
 
 
 def upload_file(file_name, bucket, object_name):
@@ -48,7 +58,12 @@ def upload_file(file_name, bucket, object_name):
     try:
         response = s3_client.upload_file(Filename=file_name, Bucket=bucket, Key=object_name)
     except ClientError as e:
+        notify(str(e), 'Failure! Thumbnail has failed to be uploaded')
         logging.error(e)
         return False
 
     return True
+
+def notify(payload, subject):
+    client = boto3.client('sns')
+    client.publish(TopicArn=topic_arn, Message=payload, Subject=subject)

@@ -1,6 +1,6 @@
 # Serverless S3 Thumbnails Generator
 
-A practical example using Python to deploy a service to generate thumbnails for images that interacts with S3.
+A practical example using Python to deploy a service to generate thumbnails for images that interacts with S3 and publish an alert to SNS in case of failure/success.
 
 ## Pre-requisite:
 
@@ -45,7 +45,7 @@ To package all the files & installed libraries
    
 To deploy all serverless functions and resources to AWS
 
-    sls deploy -v
+    sls deploy -v --stage <Your-Stage-Name> --region <AWS-Region>
     
 To deploy only the changed function code to AWS
 
@@ -53,7 +53,8 @@ To deploy only the changed function code to AWS
     
 To remove all serverless functions and resources deployed to AWS
 
-    sls remove
+    sls remove 
+    sls remove --stage<Your-Stage-Name> --region <AWS-Region>
 
 
 ## References: 

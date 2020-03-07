@@ -1,29 +1,12 @@
-# Welcome to Serverless!
-#
-# This file is the main config file for your service.
-# It's very minimal at this point and uses default values.
-# You can always add more config options for more control.
-# We've included some commented out config examples here.
-# Just uncomment any of them to get that config option.
-#
-# For full config options, check the docs:
-#    docs.serverless.com
-#
-# Happy Coding!
-
-service: sls-s3-thumbnails # NOTE: update this with your service name
-
-# You can pin your service to only deploy with a specific Serverless version
-# Check out our docs for more details
-# frameworkVersion: "=X.X.X"
-
+service: sls-s3-thumbnails
 provider:
   name: aws
   runtime: python3.7
-  region: eu-west-1
-  stage: dev2
+  stage: ${opt:stage, 'dev2'}
+  region: ${opt:region, 'eu-west-1'}
   custom:
-    BUCKET_NAME: s3-thumbnails-${self:provider.stage}
+    bucketName: s3-thumbnails-${self:provider.stage}
+    topicName: notify
   iamRoleStatements:
     - Effect: "Allow"
       Action:
@@ -33,6 +16,7 @@ provider:
       Action:
         - "s3:PutObject"
       Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } , "/*"] ] }
+
     - Effect: "Allow"
       Action:
         - "s3:PutObject"
@@ -41,47 +25,61 @@ provider:
     - Effect: "Allow"
       Action:
         - "s3:ListBucket"
-      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "S3BucketThumbnails" } ] ] }
+      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "S3BucketThumbnails" } , "/*"] ] }
 
-# you can define service wide environment variables here
-#  environment:
-#    variable1: value1
+    - Effect: "Allow"
+      Action:
+        - "sns:Publish"
+      Resource:
+        Ref: AlarmTopic
 
-# you can add packaging information here
-#package:
-#  include:
-#    - include-me.py
-#    - include-me-dir/**
-#  exclude:
-#    - exclude-me.py
-#    - exclude-me-dir/**
+  environment:
+    PREFIX: thumbnail_
+    TOPIC_ARN:
+      Ref: AlarmTopic
 
 functions:
   s3_generate_thumbnails:
     handler: handler.s3_generate_thumbnails
     events:
       - s3:
-          bucket: ${self:provider.custom.BUCKET_NAME}
+          bucket: ${self:provider.custom.bucketName}
           event: s3:ObjectCreated:*
           rules:
             - suffix: .png
           existing: true
-
-#    Define function environment variables here
-#    environment:
-#      variable2: value2
+    # this feature is not working: https://serverless.com/framework/docs/providers/aws/guide/functions/#destinations
+    destinations:
+      onSuccess:
+        Ref: AlarmTopic
+      onFailure: trigger_alert
+  # this lambda is not in use, checek the reason above
+  trigger_alert:
+    handler: handler.trigger_alert
 
 resources:
   Resources:
     S3BucketThumbnails:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: ${self:provider.custom.BUCKET_NAME}
+        BucketName: ${self:provider.custom.bucketName}
+    AlarmTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: 'S3 Thumbnails Generator Serverless Alerts'
+        TopicName: ${self:provider.custom.topicName}
+        Subscription:
+          - Endpoint: "safaa.alnablsi@gmail.com"
+            Protocol: "email"
   Outputs:
     S3BucketThumbnailsARN:
-       Description: "S3 Bucket ARN"
+       Description: "S3 Thumbnails Bucket ARN"
        Value:
           Fn::GetAtt S3BucketThumbnails
+    SnsTopicArn:
+      Description: "ARN for the SNS Alarm Topic"
+      Value:
+        Ref: AlarmTopic
 
 plugins:
   - serverless-python-requirements
@@ -89,3 +87,9 @@ custom:
   pythonRequirements:
     dockerizePip: true
     slim: False
+
+package:
+  include:
+    - handler.py
+  exclude:
+    - ./**
