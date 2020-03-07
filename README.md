@@ -2,7 +2,7 @@
 
 A practical example using Python to deploy a service to generate thumbnails for images that interacts with S3 and publish an alert to SNS in case of failure/success.
 
-## Pre-requisite:
+## Pre-requisites:
 
 - Nodejs
 - Serverless
@@ -45,6 +45,7 @@ To package all the files & installed libraries
    
 To deploy all serverless functions and resources to AWS
 
+    sls deploy -v --email <Your-email>
     sls deploy -v --stage <Your-Stage-Name> --region <AWS-Region> --email <Your-email>
     
 To deploy only the changed function code to AWS
