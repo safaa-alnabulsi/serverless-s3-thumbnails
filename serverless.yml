@@ -2,7 +2,7 @@ service: sls-s3-thumbnails
 provider:
   name: aws
   runtime: python3.7
-  stage: ${opt:stage, 'dev2'}
+  stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'eu-west-1'}
   custom:
     bucketName: s3-thumbnails-${self:provider.stage}
