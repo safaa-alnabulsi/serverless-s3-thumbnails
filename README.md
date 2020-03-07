@@ -45,7 +45,7 @@ To package all the files & installed libraries
    
 To deploy all serverless functions and resources to AWS
 
-    sls deploy -v --stage <Your-Stage-Name> --region <AWS-Region>
+    sls deploy -v --stage <Your-Stage-Name> --region <AWS-Region> --email <Your-email>
     
 To deploy only the changed function code to AWS
 

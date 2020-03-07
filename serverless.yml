@@ -7,6 +7,7 @@ provider:
   custom:
     bucketName: s3-thumbnails-${self:provider.stage}
     topicName: notify
+    email: ${opt:email}
   iamRoleStatements:
     - Effect: "Allow"
       Action:
@@ -61,7 +62,7 @@ resources:
         DisplayName: 'S3 Thumbnails Generator Serverless Alerts'
         TopicName: ${self:provider.custom.topicName}
         Subscription:
-          - Endpoint: "safaa.alnablsi@gmail.com"
+          - Endpoint: ${self:provider.custom.email}
             Protocol: "email"
   Outputs:
     S3BucketThumbnailsARN:
