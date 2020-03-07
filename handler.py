@@ -8,10 +8,6 @@ import glob, os
 prefix = os.environ['PREFIX']
 topic_arn = os.environ['TOPIC_ARN']
 
-def trigger_alert(event, context):
-    notify(str(event), 'sent from destinations feature')
-
-
 def s3_generate_thumbnails(event, context):
     bucket = event['Records'][0]['s3']['bucket']['name']
     key = event['Records'][0]['s3']['object']['key']

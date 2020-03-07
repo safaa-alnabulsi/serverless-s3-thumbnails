@@ -48,14 +48,6 @@ functions:
           rules:
             - suffix: .png
           existing: true
-    # this feature is not working: https://serverless.com/framework/docs/providers/aws/guide/functions/#destinations
-    destinations:
-      onSuccess:
-        Ref: AlarmTopic
-      onFailure: trigger_alert
-  # this lambda is not in use, checek the reason above
-  trigger_alert:
-    handler: handler.trigger_alert
 
 resources:
   Resources:
