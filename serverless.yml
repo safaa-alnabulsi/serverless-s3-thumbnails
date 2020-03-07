@@ -21,7 +21,9 @@ provider:
   name: aws
   runtime: python3.7
   region: eu-west-1
-  stage: dev
+  stage: dev2
+  custom:
+    BUCKET_NAME: s3-thumbnails-${self:provider.stage}
   iamRoleStatements:
     - Effect: "Allow"
       Action:
@@ -59,7 +61,7 @@ functions:
     handler: handler.s3_generate_thumbnails
     events:
       - s3:
-          bucket: s3-thumbnails-${self:provider.stage}
+          bucket: ${self:provider.custom.BUCKET_NAME}
           event: s3:ObjectCreated:*
           rules:
             - suffix: .png
@@ -74,7 +76,7 @@ resources:
     S3BucketThumbnails:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: s3-thumbnails-${self:provider.stage}
+        BucketName: ${self:provider.custom.BUCKET_NAME}
   Outputs:
     S3BucketThumbnailsARN:
        Description: "S3 Bucket ARN"
