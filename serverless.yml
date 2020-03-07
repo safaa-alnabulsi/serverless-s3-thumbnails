@@ -26,30 +26,20 @@ provider:
     - Effect: "Allow"
       Action:
         - "s3:ListBucket"
-      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
+      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ] }
     - Effect: "Allow"
       Action:
         - "s3:PutObject"
-      Resource:
-        Fn::Join:
-          - ""
-          - - "arn:aws:s3:::"
-            - "Ref" : "ServerlessDeploymentBucket"
-            - "/*"
+      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } , "/*"] ] }
     - Effect: "Allow"
       Action:
         - "s3:PutObject"
         - "s3:GetObject"
-      Resource:
-        Fn::Join:
-          - ""
-          - - "arn:aws:s3:::"
-            - "Ref" : "S3BucketThumbnails"
-            - "/*"
+      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "S3BucketThumbnails" } , "/*"] ] }
     - Effect: "Allow"
       Action:
         - "s3:ListBucket"
-      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "S3BucketThumbnails" } ] ]  }
+      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "S3BucketThumbnails" } ] ] }
 
 # you can define service wide environment variables here
 #  environment:
@@ -69,7 +59,7 @@ functions:
     handler: handler.s3_generate_thumbnails
     events:
       - s3:
-          bucket: s3-thumbnails
+          bucket: s3-thumbnails-${self:provider.stage}
           event: s3:ObjectCreated:*
           rules:
             - suffix: .png
@@ -84,7 +74,7 @@ resources:
     S3BucketThumbnails:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: s3-thumbnails
+        BucketName: s3-thumbnails-${self:provider.stage}
   Outputs:
     S3BucketThumbnailsARN:
        Description: "S3 Bucket ARN"
